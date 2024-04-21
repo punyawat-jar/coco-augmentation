@@ -1,0 +1,4 @@
+
+*.jpg
+images/AP.json
+augmentation/data.json

@@ -73,13 +73,13 @@ def main():
 
     ])
 
-    src = '/home/punyawat/BUU-LSPINE_400/images/AP'
-    dst = '/home/punyawat/BUU-LSPINE_400/augmentation'
-    src_json = '/home/punyawat/BUU-LSPINE_400/images/AP.json'
+    src = './images/AP'
+    dst = './augmentation'
+    src_json = './images/AP.json'
+    amount = 10
     
-    amount = 2
+    
     augment = Augmentation()
-    
     augment.setFolder(src, dst)
     augment.setSrcjson(src_json)
     augment.setAugLib('albumentations')
