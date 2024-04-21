@@ -16,16 +16,14 @@ from module.augment import *
 
 
 class Augmentation:
-    def __init__(self, src = None, dst = None, src_json = None, auglib = None):
+    def __init__(self, src = None, dst = None, src_json = None):
         self.src = src
         self.dst = dst
-        
         self.src_json = src_json
+        
         self.dst_json = None
-        
         self.dst_images = None
-        
-        self.auglib = auglib
+
         self.amount = 1
 
     def setFolder(self, src, dst):
@@ -74,7 +72,6 @@ def main():
     augment = Augmentation()
     augment.setFolder(src, dst)
     augment.setSrcjson(src_json)
-    augment.setAugLib('albumentations')
     
     augment.run(amount, augmentation)
     
