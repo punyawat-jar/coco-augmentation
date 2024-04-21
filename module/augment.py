@@ -107,3 +107,4 @@ def augmentingImage(image, masks, augmentation):
     mask_augmented = augmented['masks']
     
     return image_augmented, mask_augmented
+
