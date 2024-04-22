@@ -42,10 +42,7 @@ def createAugmentation(augmentation, src_images, dst_images, src_json, dst_json,
 def CreateAugCOCOAnnotation(coco_mask, src_json, dst_json):
         
     with open(dst_json, 'r') as file:
-        print(dst_json)
-        print('read1')
         data = json.load(file)
-        print('read2 done')
 
     coco = COCO(dst_json)
 

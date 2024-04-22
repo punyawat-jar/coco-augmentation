@@ -9,7 +9,7 @@ from pathlib import Path
 def CreateDir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
-        # print(f'Path created: {dir}')
+        print(f'Path created: {dir}')
         
         
 def randomPickImage(keys, amount):
