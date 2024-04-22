@@ -51,22 +51,27 @@ class Augmentation:
             mkdir(self.dst_images)
             shutil.copyfile(self.src_json, self.dst_json)
             
-            createAugmentation(augmentation, self.src, self.dst_images, self.src_json, self.dst_json, amount)
+            createAugmentation(augmentation, self.src, self.dst_images, self.dst_json, amount)
             copy_image(self.src, self.dst_images)
         except Exception as e:
             print(e)
             traceback.print_exc()
 def main():
+
+
     
     augmentation = A.Compose([
         A.RandomCrop(width=640, height=640),
-        A.HorizontalFlip(p=0.5),
+        # A.HorizontalFlip(p=0.5),
+        # A.CLAHE(clip_limit=4.0, tile_grid_size=(16,16), always_apply = True, p = 1.0)
     ])
+    amount = 2
     
-    src = './images/AP'
-    dst = './augmentation'
-    src_json = './images/AP.json'
-    amount = 10
+    
+    src = f'./source/AP/images'
+    dst = f'./augmentation/AP'
+    src_json = f'./source/AP/AP.json'
+    
     
     
     augment = Augmentation()

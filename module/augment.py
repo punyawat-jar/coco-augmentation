@@ -8,11 +8,10 @@ import cv2
 from module.file_op import *
 from module.mask import *
 
-def createAugmentation(augmentation, src_images, dst_images, src_json, dst_json, amount = 1):
+def createAugmentation(augmentation, src_images, dst_images, dst_json, amount = 1):
     #Create dir
-    coco = COCO(src_json)
+    coco = COCO(dst_json)
     keys = list(coco.imgs.keys())
-    
     
     #pick random image
     aug_list = randomPickImage(keys, amount)
@@ -36,10 +35,10 @@ def createAugmentation(augmentation, src_images, dst_images, src_json, dst_json,
 
         coco_mask = processMasklist(coco_mask)
 
-        last_id = CreateAugCOCOAnnotation(coco_mask, src_json, dst_json)
-        CreateAugCOCOimage(image_augmented, file_name, dst_json, dst_images, last_id)
+        last_imgs_id = CreateAugCOCOAnnotation(coco_mask, dst_json)
+        CreateAugCOCOimage(image_augmented, file_name, dst_json, dst_images, last_imgs_id)
         
-def CreateAugCOCOAnnotation(coco_mask, src_json, dst_json):
+def CreateAugCOCOAnnotation(coco_mask, dst_json):
         
     with open(dst_json, 'r') as file:
         data = json.load(file)
@@ -47,8 +46,9 @@ def CreateAugCOCOAnnotation(coco_mask, src_json, dst_json):
     coco = COCO(dst_json)
 
     last_imgs_id = list(coco.imgs.keys())[-1] + 1
+    print(last_imgs_id)
     last_id = list(coco.anns.keys())[-1]
-
+    print(last_id)
     for mask in coco_mask:
         last_id += 1
         anno = {
@@ -67,7 +67,7 @@ def CreateAugCOCOAnnotation(coco_mask, src_json, dst_json):
     with open(dst_json,'w') as f:
         json.dump(data, f, indent = 4, default=np_encoder)
         
-    return last_id
+    return last_imgs_id
     
 
 def CreateAugCOCOimage(image_augmented, image_name, dst_json, dst_images, last_imgs_id):
