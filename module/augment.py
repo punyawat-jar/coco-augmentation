@@ -46,9 +46,7 @@ def CreateAugCOCOAnnotation(coco_mask, dst_json):
     coco = COCO(dst_json)
 
     last_imgs_id = list(coco.imgs.keys())[-1] + 1
-    print(last_imgs_id)
     last_id = list(coco.anns.keys())[-1]
-    print(last_id)
     for mask in coco_mask:
         last_id += 1
         anno = {
