@@ -2,3 +2,13 @@
 *.jpg
 images/AP.json
 augmentation/data.json
+.ipynb_checkpoints/create_augmentation-checkpoint.py
+module/.ipynb_checkpoints/augment-checkpoint.py
+module/.ipynb_checkpoints/display-checkpoint.py
+module/.ipynb_checkpoints/file_op-checkpoint.py
+module/.ipynb_checkpoints/mask-checkpoint.py
+module/__pycache__/augment.cpython-310.pyc
+module/__pycache__/file_op.cpython-310.pyc
+module/__pycache__/augment.cpython-310.pyc
+module/__pycache__/file_op.cpython-310.pyc
+*.json
