@@ -1,11 +1,12 @@
 import os
-
+# os.environ['OPENCV_LOG_LEVEL'] = 'SILENT'
 import albumentations as A
 
 import shutil
+from fastprogress.fastprogress import master_bar, progress_bar
 
 from pathlib import Path
-
+from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
 import traceback
 
@@ -14,16 +15,14 @@ from module.display import *
 from module.mask import *
 from module.augment import *
 
-
 class Augmentation:
-    def __init__(self, src = None, dst = None, src_json = None):
+    def __init__(self, src = None, dst = None, src_json = None, augSet = None):
         self.src = src
         self.dst = dst
         self.src_json = src_json
-        
+        self.augSet = augSet
         self.dst_json = None
         self.dst_images = None
-
         self.amount = 1
 
     def setFolder(self, src, dst):
@@ -32,54 +31,92 @@ class Augmentation:
 
     def setSrcjson(self, src_json):
         self.src_json = src_json
-    
-    def setAugLib(self, auglib):
-        self.auglib = auglib
         
-    def run(self, amount, augmentation):
+    def run(self, amount, augmentation, augSet):
         try:
             self.dst_images = f'{self.dst}/images'
-            self.dst_json = f'{self.dst}/data.json'
+            self.dst_json = f'{self.dst}/data{augSet}.json'
             self.amount = amount
+            self.augSet = augSet
             
             if not os.path.exists(self.src_json):
                 raise Exception(f"Source file not found: {self.src_json}")
-            
-            cleanDst(self.dst, self.src_json, self.dst_json)
-            
-            mkdir(self.dst)
-            mkdir(self.dst_images)
+
             shutil.copyfile(self.src_json, self.dst_json)
             
             createAugmentation(augmentation, self.src, self.dst_images, self.dst_json, amount)
-            copy_image(self.src, self.dst_images)
         except Exception as e:
             print(e)
             traceback.print_exc()
-def main():
-
-
-    
-    augmentation = A.Compose([
-        A.RandomCrop(width=640, height=640),
-        # A.HorizontalFlip(p=0.5),
-        # A.CLAHE(clip_limit=4.0, tile_grid_size=(16,16), always_apply = True, p = 1.0)
-    ])
-    amount = 2
-    
-    
-    src = f'./source/AP/images'
-    dst = f'./augmentation/AP'
-    src_json = f'./source/AP/AP.json'
-    
-    
-    
+            
+def processAug(amountlist, src, dst, src_json, augSet, j):
     augment = Augmentation()
     augment.setFolder(src, dst)
     augment.setSrcjson(src_json)
     
-    augment.run(amount, augmentation)
+    augment.run(amountlist[j], augSet, j)
+
     
+def main():
+
+    # data = ['AP', 'LA']
+    data = ['AP']
+    
+    aug1 = A.Compose([
+        A.RandomCrop(always_apply=True, width=640, height=640, p=0.2),
+    ])
+    aug2 = A.Compose([
+        A.PixelDropout(dropout_prob=0.25, per_channel=False, drop_value=0, mask_drop_value=None, always_apply=False, p=1.0)
+    ])
+    aug3 = A.Compose([
+        A.ElasticTransform(always_apply=True, p=0.2, alpha=1.0, sigma=50.0, alpha_affine=50.0, interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None, approximate=True, same_dxdy=False)
+    ])
+    aug4 = A.Compose([
+        A.SafeRotate(p=0.8, limit=(-90, 90), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
+    ])
+    
+    
+    auglist = [aug1, aug2, aug3, aug4]
+    amountlist = [500, 500, 500, 500]
+    num_cpus = cpu_count()
+
+    print(f'All cpu process is {num_cpus}')
+    num_cpus = int(num_cpus/2)
+    print(f'Using cpu : {num_cpus}')
+    
+    pool = Pool(num_cpus)
+    
+    for i in data:
+        src = f'../../dataset/split/{i}/train'
+        dst = f'./augmentation/{i}'
+        src_json = f'../../dataset/{i}.json'
+        full_json = f'{dst}/Data.json'
+        cleanDst(dst)
+        
+        mkdir(dst)
+        mkdir(f'{dst}/images')
+
+        progress = tqdm(total=len(auglist), desc = 'Processing Augmentation image sets')
+            
+        
+        for j, augSet in enumerate(auglist):
+            pool.apply_async(processAug, args = (amountlist, src, dst, src_json, augSet, j))
+            progress.update()
+        progress.refresh()
+        pool.close()
+        pool.join()
+            
+    jsonList = glob.glob(f'{dst}/*.json')
+    jsonList.sort()
+    
+    for i in range(len(jsonList)-1):
+        pyodi.coco_merge(jsonList[0], jsonList[i+1], jsonList[0])
+    
+    os.rename(jsonList[0], full_json)
+    jsonList.pop(0)
+    for file in jsonList:
+        os.remove(file)
+        print(f"Deleted file: {file}")
 
 if __name__ == '__main__':
     main()
