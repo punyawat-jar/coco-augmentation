@@ -5,15 +5,31 @@ import shutil
 import numpy as np
 import cv2
 from pathlib import Path
-
+from tqdm import tqdm
+from pycocotools.coco import COCO
+import pyodi.apps.coco as pyodi
+import json
 def CreateDir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
         print(f'Path created: {dir}')
         
         
-def randomPickImage(keys, amount):
-    list = random.choices(keys, k =amount)
+def randomPickImage(coco, amount, src_images):
+    list = []
+    train_list = glob.glob(f'{src_images}/*.[jp][pn][g]')
+
+    for i, image in enumerate(train_list):
+        image = image.split('/')[-1]
+        train_list[i] = image
+        
+    images_list = random.choices(train_list, k = amount)
+    
+    for image in images_list:
+        for i, j in coco.imgs.items():
+            if image == j['file_name']:
+                list.append(j['id'])
+
     return list
 
 
@@ -29,11 +45,10 @@ def np_encoder(object):
         return object.item()
     
     
-def cleanDst(dst_images, src_json, dst_json):
+def cleanDst(dst_images):
     if os.path.exists(dst_images):
         shutil.rmtree(dst_images)
-    if os.path.exists(dst_json):
-        os.remove(dst_json)
+
     
     
 def load_image_coco(coco, key, file_type):
@@ -53,3 +68,5 @@ def read_corr_coco(coco, key):
             item.append(value)
             
     return item
+    
+    
