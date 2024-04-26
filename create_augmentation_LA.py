@@ -48,7 +48,7 @@ class Augmentation:
         except Exception as e:
             print(e)
             traceback.print_exc()
-            
+
 def processAug(amountlist, src, dst, src_json, augSet, j):
     augment = Augmentation()
     augment.setFolder(src, dst)
@@ -56,28 +56,21 @@ def processAug(amountlist, src, dst, src_json, augSet, j):
     
     augment.run(amountlist[j], augSet, j)
 
-    
-def main():
 
-    # data = ['AP', 'LA']
-    data = ['AP']
+def main():
+    data = ['LA']
     
     aug1 = A.Compose([
-        A.RandomCrop(always_apply=True, width=640, height=640, p=0.2),
+        A.RandomCrop(always_apply=True, width=1000, height=1000, p=0.2),
     ])
     aug2 = A.Compose([
-        A.PixelDropout(dropout_prob=0.25, per_channel=False, drop_value=0, mask_drop_value=None, always_apply=False, p=1.0)
+        A.HorizontalFlip(always_apply=True, p=1.0)
     ])
-    aug3 = A.Compose([
-        A.ElasticTransform(always_apply=True, p=0.2, alpha=1.0, sigma=50.0, alpha_affine=50.0, interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None, approximate=True, same_dxdy=False)
-    ])
-    aug4 = A.Compose([
-        A.SafeRotate(p=0.8, limit=(-90, 90), interpolation=0, border_mode=0, value=(0, 0, 0), mask_value=None),
-    ])
+
     
     
-    auglist = [aug1, aug2, aug3, aug4]
-    amountlist = [500, 500, 500, 500]
+    auglist = [aug1, aug2]
+    amountlist = [1500, 1500]
     num_cpus = cpu_count()
 
     print(f'All cpu process is {num_cpus}')
