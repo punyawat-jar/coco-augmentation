@@ -70,7 +70,7 @@ def main():
     
     
     auglist = [aug1, aug2]
-    amountlist = [500, 500]
+    amountlist = [150, 150]
     num_cpus = cpu_count()
 
     print(f'All cpu process is {num_cpus}')

@@ -15,15 +15,22 @@ def CreateDir(dir):
         print(f'Path created: {dir}')
         
         
-def randomPickImage(coco, amount, src_images):
+def randomPickImage(coco, amount, src_images, unique):
     list = []
     train_list = glob.glob(f'{src_images}/*.[jp][pn][g]')
 
     for i, image in enumerate(train_list):
         image = image.split('/')[-1]
         train_list[i] = image
-        
-    images_list = random.choices(train_list, k = amount)
+    
+    if len(train_list) < amount and unique == True:
+        print(f'Number of training images: {len(train_list)} < amount: {amount}. Therefore, using the {len(train_list)} as limited.')
+        amount = len(train_list)
+    
+    if unique == True:
+        images_list = random.sample(train_list, k = amount)
+    else:
+        images_list = random.choices(train_list, k = amount)
     
     for image in images_list:
         for i, j in coco.imgs.items():
@@ -69,4 +76,13 @@ def read_corr_coco(coco, key):
             
     return item
     
+def cleanJson(dst_json):
+    with open(dst_json, 'r') as file:
+        data = json.load(file)
+
+    # Step 3: Clean all values but keep the keys
+    cleaned_data = {key: None for key in data}  # Replace None with '' or other default value as needed
     
+    # Step 4: Write the cleaned data back to the file
+    with open(dst_json, 'w') as file:
+        json.dump(cleaned_data, file, indent=4)

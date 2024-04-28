@@ -10,12 +10,12 @@ import cv2
 from module.file_op import *
 from module.mask import *
 
-def createAugmentation(augmentation, src_images, dst_images, dst_json, amount = 1):
+def createAugmentation(augmentation, src_images, dst_images, dst_json, augDesc, unique, amount = 1):
     #Create dir
     coco = COCO(dst_json)
     
     #pick random image
-    aug_list = randomPickImage(coco, amount, src_images)
+    aug_list = randomPickImage(coco, amount, src_images, unique)
     
     
     for key in progress_bar(aug_list):
@@ -23,7 +23,7 @@ def createAugmentation(augmentation, src_images, dst_images, dst_json, amount = 
             coco_mask = []
             
             file_name, image = load_image_coco(coco, key, src_images)
-            file_name = f'aug-{random.choice(range(0,999999))}-{random.choice(range(0,9999999))}-{file_name}'
+            file_name = f'{augDesc}-aug-{random.choice(range(0,999999))}-{random.choice(range(0,9999999))}-{file_name}'
             
             corr = read_corr_coco(coco, key)
             

@@ -22,6 +22,7 @@ class Augmentation:
         self.src_json = src_json
         self.augSet = augSet
         self.dst_json = None
+        self.augDesc = None
         self.dst_images = None
         self.amount = 1
 
@@ -32,33 +33,34 @@ class Augmentation:
     def setSrcjson(self, src_json):
         self.src_json = src_json
         
-    def run(self, amount, augmentation, augSet):
+    def run(self, amount, augmentation, augSet, augDesc, unique):
         try:
             self.dst_images = f'{self.dst}/images'
             self.dst_json = f'{self.dst}/data{augSet}.json'
             self.amount = amount
             self.augSet = augSet
-            
+            self.augDesc = augDesc
             if not os.path.exists(self.src_json):
                 raise Exception(f"Source file not found: {self.src_json}")
 
             shutil.copyfile(self.src_json, self.dst_json)
             
-            createAugmentation(augmentation, self.src, self.dst_images, self.dst_json, amount)
+            createAugmentation(augmentation, self.src, self.dst_images, self.dst_json, augDesc, unique, amount)
         except Exception as e:
             print(e)
             traceback.print_exc()
 
-def processAug(amountlist, src, dst, src_json, augSet, j):
+def processAug(amountlist, src, dst, src_json, augSet, j, augDesc, unique):
     augment = Augmentation()
     augment.setFolder(src, dst)
     augment.setSrcjson(src_json)
     
-    augment.run(amountlist[j], augSet, j)
+    augment.run(amountlist[j], augSet, j, augDesc[j], unique[j])
 
-
-def main():
-    data = ['LA']
+def getAugmentlist():
+    augDesc = ['RandomCrop', 'HorizontalFlip']
+    amountlist = [400, 200]
+    unique = [False, True]
     
     aug1 = A.Compose([
         A.RandomCrop(always_apply=True, width=1000, height=1000, p=0.2),
@@ -66,13 +68,19 @@ def main():
     aug2 = A.Compose([
         A.HorizontalFlip(always_apply=True, p=1.0)
     ])
-
     
     
     auglist = [aug1, aug2]
-    amountlist = [1500, 1500]
-    num_cpus = cpu_count()
+    
+    return augDesc, amountlist, unique, auglist
+    
 
+def main():
+    data = ['AP']
+    
+    augDesc, amountlist, unique, auglist = getAugmentlist()
+
+    num_cpus = cpu_count()
     print(f'All cpu process is {num_cpus}')
     num_cpus = int(num_cpus/2)
     print(f'Using cpu : {num_cpus}')
@@ -93,7 +101,7 @@ def main():
             
         
         for j, augSet in enumerate(auglist):
-            pool.apply_async(processAug, args = (amountlist, src, dst, src_json, augSet, j))
+            pool.apply_async(processAug, args = (amountlist, src, dst, src_json, augSet, j, augDesc, unique))
             progress.update()
         progress.refresh()
         pool.close()
@@ -111,6 +119,7 @@ def main():
         os.remove(file)
         print(f"Deleted file: {file}")
 
+    shutil.move(f'{dst}/Data.json', f'{dst}/images/Data.json')
 if __name__ == '__main__':
     main()
 
