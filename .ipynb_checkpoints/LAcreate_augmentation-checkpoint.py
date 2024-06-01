@@ -71,9 +71,9 @@ def main():
     pool = Pool(num_cpus)
     
     for i in data:
-        src = f'./source/{i}'
+        src = f'../../dataset/split/{i}/train'
         dst = f'./augmentation/{i}'
-        src_json = f'./source/{i}.json'
+        src_json = f'../../dataset/{i}.json'
         full_json = f'{dst}/Data.json'
         cleanDst(dst)
         

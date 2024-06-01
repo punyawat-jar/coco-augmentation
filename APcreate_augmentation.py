@@ -57,23 +57,6 @@ def processAug(amountlist, src, dst, src_json, augSet, j, augDesc, unique):
     
     augment.run(amountlist[j], augSet, j, augDesc[j], unique[j])
 
-def getAugmentlist():
-    augDesc = ['RandomCrop', 'HorizontalFlip']
-    amountlist = [400, 200]
-    unique = [False, True]
-    
-    aug1 = A.Compose([
-        A.RandomCrop(always_apply=True, width=1000, height=1000, p=0.2),
-    ])
-    aug2 = A.Compose([
-        A.HorizontalFlip(always_apply=True, p=1.0)
-    ])
-    
-    
-    auglist = [aug1, aug2]
-    
-    return augDesc, amountlist, unique, auglist
-    
 
 def main():
     data = ['AP']
@@ -88,9 +71,9 @@ def main():
     pool = Pool(num_cpus)
     
     for i in data:
-        src = f'../../dataset/split/{i}/train'
+        src = f'./source/{i}'
         dst = f'./augmentation/{i}'
-        src_json = f'../../dataset/{i}.json'
+        src_json = f'./source/{i}.json'
         full_json = f'{dst}/Data.json'
         cleanDst(dst)
         

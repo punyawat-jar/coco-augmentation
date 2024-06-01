@@ -56,10 +56,10 @@ def processAug(amountlist, src, dst, src_json, augSet, j, augDesc, unique):
     augment.setSrcjson(src_json)
     
     augment.run(amountlist[j], augSet, j, augDesc[j], unique[j])
-    
+
 
 def main():
-    data = ['LA']
+    data = ['AP']
     
     augDesc, amountlist, unique, auglist = getAugmentlist()
 
@@ -71,9 +71,9 @@ def main():
     pool = Pool(num_cpus)
     
     for i in data:
-        src = f'./source/{i}'
+        src = f'../../dataset/split/{i}/train'
         dst = f'./augmentation/{i}'
-        src_json = f'./source/{i}.json'
+        src_json = f'../../dataset/{i}.json'
         full_json = f'{dst}/Data.json'
         cleanDst(dst)
         

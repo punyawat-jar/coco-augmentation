@@ -28,14 +28,15 @@ def maskArea(polygons):
 
 def getMask(image, corr):
     masks = []
-    
+    anns = []
     for polygon in corr:
+        anns.append(polygon['category_id'])
         mask_img = Image.new('L', (image.shape[1], image.shape[0]), 0)
         draw = ImageDraw.Draw(mask_img)
         draw.polygon(polygon['segmentation'][0], fill=1)
         mask = np.array(mask_img)
         masks.append(mask)
-    return masks
+    return masks, anns
 
 
 def processMasklist(coco_mask):
